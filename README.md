@@ -69,3 +69,5 @@ curl --request DELETE -H "Content-Type: application/json" --data '{"email":"emai
 - certificates are given an auto-incrementing primary key
   - this could also be used as a record identifier when selecting cert to activate/deactivate
   - stuck with private key to stay closer to data structure requirements
+- currently, certificates are not deleted when a user is
+  - this would be ideal, but not implemented in the interest of time

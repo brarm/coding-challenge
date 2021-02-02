@@ -69,20 +69,23 @@ def customer_create():
 		email = content['email']
 		plaintext_pw = content['password']
 
-	conn = sqlite3.connect('cman.db')
-	curs = conn.cursor()
-	
-	# Hash password to store securely (non-plaintext)
-	salt = uuid.uuid4().hex
-	hashed_pw = hash_password(plaintext_pw, salt)
-	customer = (name, email, hashed_pw, salt)
+	if check_for_user(email):
+		return f'User with {email} already exists', 400
+	else:
+		conn = sqlite3.connect('cman.db')
+		curs = conn.cursor()
+		
+		# Hash password to store securely (non-plaintext)
+		salt = uuid.uuid4().hex
+		hashed_pw = hash_password(plaintext_pw, salt)
+		customer = (name, email, hashed_pw, salt)
 
-	insert_customer = 'INSERT INTO customer (name, email, password, salt) VALUES (?,?,?,?)'
-	curs.execute(insert_customer, customer)
+		insert_customer = 'INSERT INTO customer (name, email, password, salt) VALUES (?,?,?,?)'
+		curs.execute(insert_customer, customer)
 
-	id = curs.lastrowid
-	close_db(conn)
-	return f'User created. id: {id}', 200
+		id = curs.lastrowid
+		close_db(conn)
+		return f'User created. id: {id}', 200
 
 
 # Delete customer from db

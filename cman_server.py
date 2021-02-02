@@ -21,7 +21,38 @@ REST_CLIENT = 'https://enuddqm54vfmht7.m.pipedream.net'
 warnings.filterwarnings('ignore')
 app = Flask(__name__)
 
+
+# Helper method to instantiate sqlite tables
+# Called directly after
+def instantiate_tables():
+	conn = sqlite3.connect('cman.db')
+	curs = conn.cursor()
+
+	customer_table = """
+	CREATE TABLE IF NOT EXISTS customer (
+		email text PRIMARY KEY,
+		name text NOT NULL,
+		password text NOT NULL,
+		salt text NOT NULL)
+	"""
+
+	curs.execute(customer_table)
+
+	certificate_table = """
+	CREATE TABLE IF NOT EXISTS certificate (
+		certid integer PRIMARY KEY,
+		key text NOT NULL,
+		body text NOT NULL,
+		status text NOT NULL,
+		customer text NOT NULL,
+		FOREIGN KEY(customer) REFERENCES customer(email))
+	"""
+
+	curs.execute(certificate_table)
+	conn.close()
+
 instantiate_tables()
+
 
 # Create customer and insert into db
 # 	HTTP Method: POST
@@ -215,36 +246,6 @@ def certificate_get():
 		
 		close_db(conn)
 		return {'certificates': certificates}, 200	
-
-
-# Helper method to instantiate sqlite tables
-# Called directly after
-def instantiate_tables():
-	conn = sqlite3.connect('cman.db')
-	curs = conn.cursor()
-
-	customer_table = """
-	CREATE TABLE IF NOT EXISTS customer (
-		email text PRIMARY KEY,
-		name text NOT NULL,
-		password text NOT NULL,
-		salt text NOT NULL)
-	"""
-
-	curs.execute(customer_table)
-
-	certificate_table = """
-	CREATE TABLE IF NOT EXISTS certificate (
-		certid integer PRIMARY KEY,
-		key text NOT NULL,
-		body text NOT NULL,
-		status text NOT NULL,
-		customer text NOT NULL,
-		FOREIGN KEY(customer) REFERENCES customer(email))
-	"""
-
-	curs.execute(certificate_table)
-	conn.close()
 
 
 # Hashing implemented to store password safely
